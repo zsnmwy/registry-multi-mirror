@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dockerhub
+  labels:
+    app: dockerhub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dockerhub
+  template:
+    metadata:
+      labels:
+        app: dockerhub
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - dockerhub
+              topologyKey: kubernetes.io/hostname
+            weight: 1
+      dnsPolicy: None
+      dnsConfig:
+        nameservers:
+          - 8.8.8.8
+          - 8.8.4.4
+      containers:
+      - name: dockerhub
+        image: yangchuansheng/registry-proxy:latest
+        env:
+        - name: PROXY_REMOTE_URL
+          value: https://registry-1.docker.io
+        - name: PROXY_USERNAME
+          value: yangchuansheng
+        - name: PROXY_PASSWORD
+          value: ********
+        ports:
+        - containerPort: 5000
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /etc/localtime
+          name: localtime
+        - mountPath: /var/lib/registry
+          name: registry
+      volumes:
+      - name: localtime
+        hostPath:
+          path: /etc/localtime
+      - name: registry
+        hostPath:
+          path: /var/lib/registry
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dockerhub
+  labels:
+    app: dockerhub
+spec:
+  selector:
+    app: dockerhub
+  ports:
+    - protocol: TCP
+      name: http
+      port: 5000
+      targetPort: 5000

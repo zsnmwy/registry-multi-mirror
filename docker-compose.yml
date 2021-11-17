@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+  caddy:
+    restart: always
+    image: caddy
+    ports:
+      - 443:443
+    volumes:
+      - $PWD/Caddyfile:/etc/caddy/Caddyfile
+      - ./data/caddy:/data
+
+  docker:
+    restart: always
+    image: zsnmwy/registry
+    environment:
+      - PROXY_REMOTE_URL=https://registry-1.docker.io
+    volumes:
+      - ./data/docker:/var/lib/registry:rw
+
+  gcr:
+    restart: always
+    image: zsnmwy/registry
+    environment:
+      - PROXY_REMOTE_URL=https://gcr.io
+    volumes:
+      - ./data/gcr:/var/lib/registry:rw
+
+  quay:
+    restart: always
+    image: zsnmwy/registry
+    environment:
+      - PROXY_REMOTE_URL=https://quay.io
+    volumes:
+      - ./data/quay:/var/lib/registry:rw
+
+  k8s:
+    restart: always
+    image: zsnmwy/registry
+    environment:
+      - PROXY_REMOTE_URL=https://k8s.gcr.io
+    volumes:
+      - ./data/k8s:/var/lib/registry:rw
+
+  ghcr:
+    restart: always
+    image: zsnmwy/registry
+    environment:
+      - PROXY_REMOTE_URL=https://ghcr.io
+    volumes:
+      - ./data/k8s:/var/lib/registry:rw
