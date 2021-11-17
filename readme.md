@@ -1,6 +1,14 @@
 # registry multi mirror
 
-Proxy multi register.
+Proxy multi registries.
+
+Support:
+
+- registry-1.docker.io
+- gcr.io
+- quay.io
+- k8s.gcr.io
+- ghcr.io
 
 Two methods to deploy:
 
